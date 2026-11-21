@@ -22,6 +22,20 @@
       "when": 1795280932579,
       "tag": "0002_scope_medivault_role_helpers",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795281803833,
+      "tag": "0003_allow_owner_report_returning",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795282166395,
+      "tag": "0004_allow_owner_cleanup_of_incomplete_uploads",
+      "breakpoints": true
     }
   ]
 }

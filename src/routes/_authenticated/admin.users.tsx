@@ -1,8 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { WorkspacePage } from "@/components/medivault-pages";
-import { pageHead } from "@/lib/seo";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
-  head: () => pageHead("Manage users", "Search user accounts and manage active access."),
-  component: () => <WorkspacePage section="admin-users" />,
+  component: () => <Outlet />,
 });

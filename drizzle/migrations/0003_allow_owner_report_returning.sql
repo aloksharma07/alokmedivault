@@ -1,0 +1,1 @@
+ALTER POLICY "Allowed users can view reports" ON public.reports USING (patient_id = public.current_patient_id() OR public.doctor_can_view_report(id) OR public.has_active_role(auth.uid(), 'admin'));

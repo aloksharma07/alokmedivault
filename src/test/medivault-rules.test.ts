@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { canCompareReports, getShareStatus, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry } from "@/lib/medivault";
 
 describe("MediVault report rules", () => {
@@ -34,5 +36,15 @@ describe("MediVault report rules", () => {
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "blood" })).toBe(true);
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "scan" })).toBe(false);
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "a", category_id: "blood" })).toBe(false);
+  });
+
+  it("keeps patient-owned reports readable while preserving clinician and admin gates", () => {
+    const migration = readFileSync(resolve(process.cwd(), "drizzle/migrations/0003_allow_owner_report_returning.sql"), "utf8");
+    expect(migration).toMatch(/ALTER POLICY "Allowed users can view reports" ON public\.reports USING \(patient_id = public\.current_patient_id\(\) OR public\.doctor_can_view_report\(id\) OR public\.has_active_role\(auth\.uid\(\), 'admin'\)\);/);
+  });
+
+  it("allows patients to clean up incomplete files without widening clinician access", () => {
+    const migration = readFileSync(resolve(process.cwd(), "drizzle/migrations/0004_allow_owner_cleanup_of_incomplete_uploads.sql"), "utf8");
+    expect(migration).toMatch(/storage\.foldername\(name\)\)\[1\] = public\.current_patient_id\(\)::text OR public\.can_access_report_file\(name\)/);
   });
 });

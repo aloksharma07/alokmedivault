@@ -31,11 +31,16 @@ import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDoctorDashboardRouteImport } from './routes/_authenticated/doctor.dashboard'
 import { Route as AuthenticatedDoctorQrAccessRouteImport } from './routes/_authenticated/doctor.qr-access'
 import { Route as AuthenticatedDoctorReportsRouteImport } from './routes/_authenticated/doctor.reports'
+import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports.index'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedReportsNewRouteImport } from './routes/_authenticated/reports.new'
+import { Route as AuthenticatedAdminUsersIndexRouteImport } from './routes/_authenticated/admin.users.index'
 import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin.users.$userId'
+import { Route as AuthenticatedDoctorQrAccessIndexRouteImport } from './routes/_authenticated/doctor.qr-access.index'
 import { Route as AuthenticatedDoctorQrAccessQrTokenRouteImport } from './routes/_authenticated/doctor.qr-access.$qrToken'
+import { Route as AuthenticatedDoctorReportsIndexRouteImport } from './routes/_authenticated/doctor.reports.index'
 import { Route as AuthenticatedDoctorReportsShareIdRouteImport } from './routes/_authenticated/doctor.reports.$shareId'
+import { Route as AuthenticatedReportsReportIdIndexRouteImport } from './routes/_authenticated/reports.$reportId.index'
 import { Route as AuthenticatedReportsReportIdEditRouteImport } from './routes/_authenticated/reports.$reportId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -154,6 +159,12 @@ const AuthenticatedDoctorReportsRoute =
     path: '/doctor/reports',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReportsIndexRoute =
+  AuthenticatedReportsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedReportsRoute,
+  } as any)
 const AuthenticatedReportsReportIdRoute =
   AuthenticatedReportsReportIdRouteImport.update({
     id: '/$reportId',
@@ -165,11 +176,23 @@ const AuthenticatedReportsNewRoute = AuthenticatedReportsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthenticatedReportsRoute,
 } as any)
+const AuthenticatedAdminUsersIndexRoute =
+  AuthenticatedAdminUsersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
 const AuthenticatedAdminUsersUserIdRoute =
   AuthenticatedAdminUsersUserIdRouteImport.update({
     id: '/$userId',
     path: '/$userId',
     getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
+const AuthenticatedDoctorQrAccessIndexRoute =
+  AuthenticatedDoctorQrAccessIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDoctorQrAccessRoute,
   } as any)
 const AuthenticatedDoctorQrAccessQrTokenRoute =
   AuthenticatedDoctorQrAccessQrTokenRouteImport.update({
@@ -177,11 +200,23 @@ const AuthenticatedDoctorQrAccessQrTokenRoute =
     path: '/$qrToken',
     getParentRoute: () => AuthenticatedDoctorQrAccessRoute,
   } as any)
+const AuthenticatedDoctorReportsIndexRoute =
+  AuthenticatedDoctorReportsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDoctorReportsRoute,
+  } as any)
 const AuthenticatedDoctorReportsShareIdRoute =
   AuthenticatedDoctorReportsShareIdRouteImport.update({
     id: '/$shareId',
     path: '/$shareId',
     getParentRoute: () => AuthenticatedDoctorReportsRoute,
+  } as any)
+const AuthenticatedReportsReportIdIndexRoute =
+  AuthenticatedReportsReportIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedReportsReportIdRoute,
   } as any)
 const AuthenticatedReportsReportIdEditRoute =
   AuthenticatedReportsReportIdEditRouteImport.update({
@@ -214,10 +249,15 @@ export interface FileRoutesByFullPath {
   '/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
   '/reports/new': typeof AuthenticatedReportsNewRoute
+  '/reports/': typeof AuthenticatedReportsIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
   '/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
   '/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
+  '/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
+  '/doctor/qr-access/': typeof AuthenticatedDoctorQrAccessIndexRoute
+  '/doctor/reports/': typeof AuthenticatedDoctorReportsIndexRoute
+  '/reports/$reportId/': typeof AuthenticatedReportsReportIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -230,23 +270,23 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/important': typeof AuthenticatedImportantRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/shared-reports': typeof AuthenticatedSharedReportsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
   '/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
-  '/doctor/qr-access': typeof AuthenticatedDoctorQrAccessRouteWithChildren
-  '/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
-  '/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
   '/reports/new': typeof AuthenticatedReportsNewRoute
+  '/reports': typeof AuthenticatedReportsIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
   '/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
   '/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
+  '/doctor/qr-access': typeof AuthenticatedDoctorQrAccessIndexRoute
+  '/doctor/reports': typeof AuthenticatedDoctorReportsIndexRoute
+  '/reports/$reportId': typeof AuthenticatedReportsReportIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -274,10 +314,15 @@ export interface FileRoutesById {
   '/_authenticated/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
   '/_authenticated/reports/new': typeof AuthenticatedReportsNewRoute
+  '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/_authenticated/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
   '/_authenticated/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
   '/_authenticated/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
+  '/_authenticated/doctor/qr-access/': typeof AuthenticatedDoctorQrAccessIndexRoute
+  '/_authenticated/doctor/reports/': typeof AuthenticatedDoctorReportsIndexRoute
+  '/_authenticated/reports/$reportId/': typeof AuthenticatedReportsReportIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -305,10 +350,15 @@ export interface FileRouteTypes {
     | '/doctor/reports'
     | '/reports/$reportId'
     | '/reports/new'
+    | '/reports/'
     | '/admin/users/$userId'
     | '/doctor/qr-access/$qrToken'
     | '/doctor/reports/$shareId'
     | '/reports/$reportId/edit'
+    | '/admin/users/'
+    | '/doctor/qr-access/'
+    | '/doctor/reports/'
+    | '/reports/$reportId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -321,23 +371,23 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/important'
     | '/profile'
-    | '/reports'
     | '/settings'
     | '/shared-reports'
     | '/timeline'
     | '/admin/activity'
     | '/admin/categories'
     | '/admin/dashboard'
-    | '/admin/users'
     | '/doctor/dashboard'
-    | '/doctor/qr-access'
-    | '/doctor/reports'
-    | '/reports/$reportId'
     | '/reports/new'
+    | '/reports'
     | '/admin/users/$userId'
     | '/doctor/qr-access/$qrToken'
     | '/doctor/reports/$shareId'
     | '/reports/$reportId/edit'
+    | '/admin/users'
+    | '/doctor/qr-access'
+    | '/doctor/reports'
+    | '/reports/$reportId'
   id:
     | '__root__'
     | '/'
@@ -364,10 +414,15 @@ export interface FileRouteTypes {
     | '/_authenticated/doctor/reports'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/reports/new'
+    | '/_authenticated/reports/'
     | '/_authenticated/admin/users/$userId'
     | '/_authenticated/doctor/qr-access/$qrToken'
     | '/_authenticated/doctor/reports/$shareId'
     | '/_authenticated/reports/$reportId/edit'
+    | '/_authenticated/admin/users/'
+    | '/_authenticated/doctor/qr-access/'
+    | '/_authenticated/doctor/reports/'
+    | '/_authenticated/reports/$reportId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -535,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDoctorReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reports/': {
+      id: '/_authenticated/reports/'
+      path: '/'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedReportsRoute
+    }
     '/_authenticated/reports/$reportId': {
       id: '/_authenticated/reports/$reportId'
       path: '/$reportId'
@@ -549,12 +611,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsNewRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
     }
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
     '/_authenticated/admin/users/$userId': {
       id: '/_authenticated/admin/users/$userId'
       path: '/$userId'
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AuthenticatedAdminUsersUserIdRouteImport
       parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
+    '/_authenticated/doctor/qr-access/': {
+      id: '/_authenticated/doctor/qr-access/'
+      path: '/'
+      fullPath: '/doctor/qr-access/'
+      preLoaderRoute: typeof AuthenticatedDoctorQrAccessIndexRouteImport
+      parentRoute: typeof AuthenticatedDoctorQrAccessRoute
     }
     '/_authenticated/doctor/qr-access/$qrToken': {
       id: '/_authenticated/doctor/qr-access/$qrToken'
@@ -563,12 +639,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDoctorQrAccessQrTokenRouteImport
       parentRoute: typeof AuthenticatedDoctorQrAccessRoute
     }
+    '/_authenticated/doctor/reports/': {
+      id: '/_authenticated/doctor/reports/'
+      path: '/'
+      fullPath: '/doctor/reports/'
+      preLoaderRoute: typeof AuthenticatedDoctorReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedDoctorReportsRoute
+    }
     '/_authenticated/doctor/reports/$shareId': {
       id: '/_authenticated/doctor/reports/$shareId'
       path: '/$shareId'
       fullPath: '/doctor/reports/$shareId'
       preLoaderRoute: typeof AuthenticatedDoctorReportsShareIdRouteImport
       parentRoute: typeof AuthenticatedDoctorReportsRoute
+    }
+    '/_authenticated/reports/$reportId/': {
+      id: '/_authenticated/reports/$reportId/'
+      path: '/'
+      fullPath: '/reports/$reportId/'
+      preLoaderRoute: typeof AuthenticatedReportsReportIdIndexRouteImport
+      parentRoute: typeof AuthenticatedReportsReportIdRoute
     }
     '/_authenticated/reports/$reportId/edit': {
       id: '/_authenticated/reports/$reportId/edit'
@@ -582,12 +672,15 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedReportsReportIdRouteChildren {
   AuthenticatedReportsReportIdEditRoute: typeof AuthenticatedReportsReportIdEditRoute
+  AuthenticatedReportsReportIdIndexRoute: typeof AuthenticatedReportsReportIdIndexRoute
 }
 
 const AuthenticatedReportsReportIdRouteChildren: AuthenticatedReportsReportIdRouteChildren =
   {
     AuthenticatedReportsReportIdEditRoute:
       AuthenticatedReportsReportIdEditRoute,
+    AuthenticatedReportsReportIdIndexRoute:
+      AuthenticatedReportsReportIdIndexRoute,
   }
 
 const AuthenticatedReportsReportIdRouteWithChildren =
@@ -598,12 +691,14 @@ const AuthenticatedReportsReportIdRouteWithChildren =
 interface AuthenticatedReportsRouteChildren {
   AuthenticatedReportsReportIdRoute: typeof AuthenticatedReportsReportIdRouteWithChildren
   AuthenticatedReportsNewRoute: typeof AuthenticatedReportsNewRoute
+  AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
 }
 
 const AuthenticatedReportsRouteChildren: AuthenticatedReportsRouteChildren = {
   AuthenticatedReportsReportIdRoute:
     AuthenticatedReportsReportIdRouteWithChildren,
   AuthenticatedReportsNewRoute: AuthenticatedReportsNewRoute,
+  AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
 }
 
 const AuthenticatedReportsRouteWithChildren =
@@ -611,11 +706,13 @@ const AuthenticatedReportsRouteWithChildren =
 
 interface AuthenticatedAdminUsersRouteChildren {
   AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+  AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
 }
 
 const AuthenticatedAdminUsersRouteChildren: AuthenticatedAdminUsersRouteChildren =
   {
     AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+    AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
   }
 
 const AuthenticatedAdminUsersRouteWithChildren =
@@ -625,12 +722,15 @@ const AuthenticatedAdminUsersRouteWithChildren =
 
 interface AuthenticatedDoctorQrAccessRouteChildren {
   AuthenticatedDoctorQrAccessQrTokenRoute: typeof AuthenticatedDoctorQrAccessQrTokenRoute
+  AuthenticatedDoctorQrAccessIndexRoute: typeof AuthenticatedDoctorQrAccessIndexRoute
 }
 
 const AuthenticatedDoctorQrAccessRouteChildren: AuthenticatedDoctorQrAccessRouteChildren =
   {
     AuthenticatedDoctorQrAccessQrTokenRoute:
       AuthenticatedDoctorQrAccessQrTokenRoute,
+    AuthenticatedDoctorQrAccessIndexRoute:
+      AuthenticatedDoctorQrAccessIndexRoute,
   }
 
 const AuthenticatedDoctorQrAccessRouteWithChildren =
@@ -640,12 +740,14 @@ const AuthenticatedDoctorQrAccessRouteWithChildren =
 
 interface AuthenticatedDoctorReportsRouteChildren {
   AuthenticatedDoctorReportsShareIdRoute: typeof AuthenticatedDoctorReportsShareIdRoute
+  AuthenticatedDoctorReportsIndexRoute: typeof AuthenticatedDoctorReportsIndexRoute
 }
 
 const AuthenticatedDoctorReportsRouteChildren: AuthenticatedDoctorReportsRouteChildren =
   {
     AuthenticatedDoctorReportsShareIdRoute:
       AuthenticatedDoctorReportsShareIdRoute,
+    AuthenticatedDoctorReportsIndexRoute: AuthenticatedDoctorReportsIndexRoute,
   }
 
 const AuthenticatedDoctorReportsRouteWithChildren =

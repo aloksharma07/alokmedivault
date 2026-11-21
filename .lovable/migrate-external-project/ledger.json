@@ -6,16 +6,16 @@
     {
       "capability": "application code and routes",
       "source": "Flask/Jinja patient, doctor, and admin application in the outer archive folder",
-      "outcome": "recreate in the Lovable app, including patient report management, time-limited shares, QR access, account settings, and admin screens",
+      "outcome": "recreated patient report management, time-limited shares, QR access, account settings, and admin screens; public pages and the signed-in patient report flow were verified on desktop and mobile",
       "status": "in_progress",
-      "next_action": "finish the preview and verify the important flows"
+      "next_action": "verify clinician sharing, QR access, and administrator workflows after role accounts are available"
     },
     {
       "capability": "database schema",
       "source": "SQLite schema in models/__init__.py",
-      "outcome": "migrate the application tables to Lovable Cloud with ownership and role protections",
+      "outcome": "migrated application tables to Lovable Cloud with ownership and role protections; patient report save, readback, private preview, deletion, and owner-only cleanup of incomplete uploads were verified",
       "status": "in_progress",
-      "next_action": "verify the Cloud schema and application reads/writes"
+      "next_action": "complete clinician, QR, and administrator access checks after safe records and role accounts are available"
     },
     {
       "capability": "application records",
@@ -34,16 +34,16 @@
     {
       "capability": "authorization",
       "source": "Flask role decorators, report ownership checks, and doctor share expiry checks",
-      "outcome": "recreated patient, doctor, and admin boundaries in Cloud role records, row policies, and server-side checks",
+      "outcome": "recreated patient, clinician, and admin boundaries in Cloud roles and row policies; patient-owned report access was verified, while cross-account and clinician/admin checks remain unverified",
       "status": "in_progress",
-      "next_action": "test owner, doctor-share, QR, and admin access boundaries"
+      "next_action": "verify clinician-share, QR, administrator, and cross-account isolation with representative role accounts"
     },
     {
       "capability": "uploaded report file bytes",
       "source": "no uploads folder or report files found in the ZIP; metadata may exist in the SQLite file",
       "outcome": "private Cloud storage is ready for new uploads; existing file bytes remain pending",
       "status": "pending",
-      "next_action": "after the preview, request the existing report files and a mapping to original report IDs"
+      "next_action": "request existing report files and their original report-ID mapping; no file bytes were included in the archive"
     },
     {
       "capability": "external providers",
@@ -90,9 +90,9 @@
     {
       "capability": "verification",
       "source": "migration work not yet complete",
-      "outcome": "verify routes, Cloud data writes, upload/download, account flow, and privacy boundaries",
+      "outcome": "public pages, desktop/mobile layout, and a signed-in patient upload, private PDF response, and deletion were verified; report rows were removed, while one stale test-file metadata row still appears in direct database reads but is unavailable through Storage; clinician/QR/admin, cross-account, and imported-user checks remain pending",
       "status": "pending",
-      "next_action": "run after implementation and data are available"
+      "next_action": "recheck the inaccessible test-file metadata row, then verify role boundaries after safe exports and representative accounts are available"
     }
   ]
 }

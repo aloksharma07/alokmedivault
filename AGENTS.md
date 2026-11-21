@@ -31,3 +31,4 @@ use the editor.
 
 ## Project architecture
 - Keep account data, protected medical-report workflows, and private report files in TanStack Start and Lovable Cloud; this preserves managed sign-in and server-enforced privacy.
+- Use outlet-only parent routes with leaf index pages for nested workflows; this lets list, detail, and edit screens render independently with their own metadata.

@@ -1,0 +1,1 @@
+ALTER POLICY "Allowed users read report files" ON storage.objects USING (bucket_id = 'medical-reports' AND ((storage.foldername(name))[1] = public.current_patient_id()::text OR public.can_access_report_file(name)));
