@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795280245376,
+      "tag": "0000_create_medivault_cloud_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795280375295,
+      "tag": "0001_restrict_medivault_definer_functions",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795280932579,
+      "tag": "0002_scope_medivault_role_helpers",
+      "breakpoints": true
+    }
+  ]
+}

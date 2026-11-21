@@ -10,33 +10,373 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
+import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticated/compare'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedImportantRouteImport } from './routes/_authenticated/important'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSharedReportsRouteImport } from './routes/_authenticated/shared-reports'
+import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
+import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedDoctorDashboardRouteImport } from './routes/_authenticated/doctor.dashboard'
+import { Route as AuthenticatedDoctorQrAccessRouteImport } from './routes/_authenticated/doctor.qr-access'
+import { Route as AuthenticatedDoctorReportsRouteImport } from './routes/_authenticated/doctor.reports'
+import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
+import { Route as AuthenticatedReportsNewRouteImport } from './routes/_authenticated/reports.new'
+import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin.users.$userId'
+import { Route as AuthenticatedDoctorQrAccessQrTokenRouteImport } from './routes/_authenticated/doctor.qr-access.$qrToken'
+import { Route as AuthenticatedDoctorReportsShareIdRouteImport } from './routes/_authenticated/doctor.reports.$shareId'
+import { Route as AuthenticatedReportsReportIdEditRouteImport } from './routes/_authenticated/reports.$reportId.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
+  id: '/activities',
+  path: '/activities',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCompareRoute = AuthenticatedCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedImportantRoute = AuthenticatedImportantRouteImport.update({
+  id: '/important',
+  path: '/important',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSharedReportsRoute =
+  AuthenticatedSharedReportsRouteImport.update({
+    id: '/shared-reports',
+    path: '/shared-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTimelineRoute = AuthenticatedTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminActivityRoute =
+  AuthenticatedAdminActivityRouteImport.update({
+    id: '/admin/activity',
+    path: '/admin/activity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/admin/categories',
+    path: '/admin/categories',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/admin/dashboard',
+    path: '/admin/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDoctorDashboardRoute =
+  AuthenticatedDoctorDashboardRouteImport.update({
+    id: '/doctor/dashboard',
+    path: '/doctor/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDoctorQrAccessRoute =
+  AuthenticatedDoctorQrAccessRouteImport.update({
+    id: '/doctor/qr-access',
+    path: '/doctor/qr-access',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDoctorReportsRoute =
+  AuthenticatedDoctorReportsRouteImport.update({
+    id: '/doctor/reports',
+    path: '/doctor/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReportsReportIdRoute =
+  AuthenticatedReportsReportIdRouteImport.update({
+    id: '/$reportId',
+    path: '/$reportId',
+    getParentRoute: () => AuthenticatedReportsRoute,
+  } as any)
+const AuthenticatedReportsNewRoute = AuthenticatedReportsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedReportsRoute,
+} as any)
+const AuthenticatedAdminUsersUserIdRoute =
+  AuthenticatedAdminUsersUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
+const AuthenticatedDoctorQrAccessQrTokenRoute =
+  AuthenticatedDoctorQrAccessQrTokenRouteImport.update({
+    id: '/$qrToken',
+    path: '/$qrToken',
+    getParentRoute: () => AuthenticatedDoctorQrAccessRoute,
+  } as any)
+const AuthenticatedDoctorReportsShareIdRoute =
+  AuthenticatedDoctorReportsShareIdRouteImport.update({
+    id: '/$shareId',
+    path: '/$shareId',
+    getParentRoute: () => AuthenticatedDoctorReportsRoute,
+  } as any)
+const AuthenticatedReportsReportIdEditRoute =
+  AuthenticatedReportsReportIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedReportsReportIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/activities': typeof AuthenticatedActivitiesRoute
+  '/compare': typeof AuthenticatedCompareRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/important': typeof AuthenticatedImportantRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/shared-reports': typeof AuthenticatedSharedReportsRoute
+  '/timeline': typeof AuthenticatedTimelineRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
+  '/doctor/qr-access': typeof AuthenticatedDoctorQrAccessRouteWithChildren
+  '/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
+  '/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
+  '/reports/new': typeof AuthenticatedReportsNewRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
+  '/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
+  '/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/activities': typeof AuthenticatedActivitiesRoute
+  '/compare': typeof AuthenticatedCompareRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/important': typeof AuthenticatedImportantRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/shared-reports': typeof AuthenticatedSharedReportsRoute
+  '/timeline': typeof AuthenticatedTimelineRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
+  '/doctor/qr-access': typeof AuthenticatedDoctorQrAccessRouteWithChildren
+  '/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
+  '/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
+  '/reports/new': typeof AuthenticatedReportsNewRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
+  '/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
+  '/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
+  '/_authenticated/compare': typeof AuthenticatedCompareRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/important': typeof AuthenticatedImportantRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/shared-reports': typeof AuthenticatedSharedReportsRoute
+  '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
+  '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/_authenticated/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
+  '/_authenticated/doctor/qr-access': typeof AuthenticatedDoctorQrAccessRouteWithChildren
+  '/_authenticated/doctor/reports': typeof AuthenticatedDoctorReportsRouteWithChildren
+  '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRouteWithChildren
+  '/_authenticated/reports/new': typeof AuthenticatedReportsNewRoute
+  '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/_authenticated/doctor/qr-access/$qrToken': typeof AuthenticatedDoctorQrAccessQrTokenRoute
+  '/_authenticated/doctor/reports/$shareId': typeof AuthenticatedDoctorReportsShareIdRoute
+  '/_authenticated/reports/$reportId/edit': typeof AuthenticatedReportsReportIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/reset-password'
+    | '/activities'
+    | '/compare'
+    | '/dashboard'
+    | '/important'
+    | '/profile'
+    | '/reports'
+    | '/settings'
+    | '/shared-reports'
+    | '/timeline'
+    | '/admin/activity'
+    | '/admin/categories'
+    | '/admin/dashboard'
+    | '/admin/users'
+    | '/doctor/dashboard'
+    | '/doctor/qr-access'
+    | '/doctor/reports'
+    | '/reports/$reportId'
+    | '/reports/new'
+    | '/admin/users/$userId'
+    | '/doctor/qr-access/$qrToken'
+    | '/doctor/reports/$shareId'
+    | '/reports/$reportId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/reset-password'
+    | '/activities'
+    | '/compare'
+    | '/dashboard'
+    | '/important'
+    | '/profile'
+    | '/reports'
+    | '/settings'
+    | '/shared-reports'
+    | '/timeline'
+    | '/admin/activity'
+    | '/admin/categories'
+    | '/admin/dashboard'
+    | '/admin/users'
+    | '/doctor/dashboard'
+    | '/doctor/qr-access'
+    | '/doctor/reports'
+    | '/reports/$reportId'
+    | '/reports/new'
+    | '/admin/users/$userId'
+    | '/doctor/qr-access/$qrToken'
+    | '/doctor/reports/$shareId'
+    | '/reports/$reportId/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/reset-password'
+    | '/_authenticated/activities'
+    | '/_authenticated/compare'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/important'
+    | '/_authenticated/profile'
+    | '/_authenticated/reports'
+    | '/_authenticated/settings'
+    | '/_authenticated/shared-reports'
+    | '/_authenticated/timeline'
+    | '/_authenticated/admin/activity'
+    | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/doctor/dashboard'
+    | '/_authenticated/doctor/qr-access'
+    | '/_authenticated/doctor/reports'
+    | '/_authenticated/reports/$reportId'
+    | '/_authenticated/reports/new'
+    | '/_authenticated/admin/users/$userId'
+    | '/_authenticated/doctor/qr-access/$qrToken'
+    | '/_authenticated/doctor/reports/$shareId'
+    | '/_authenticated/reports/$reportId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +388,320 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/activities': {
+      id: '/_authenticated/activities'
+      path: '/activities'
+      fullPath: '/activities'
+      preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compare': {
+      id: '/_authenticated/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof AuthenticatedCompareRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/important': {
+      id: '/_authenticated/important'
+      path: '/important'
+      fullPath: '/important'
+      preLoaderRoute: typeof AuthenticatedImportantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shared-reports': {
+      id: '/_authenticated/shared-reports'
+      path: '/shared-reports'
+      fullPath: '/shared-reports'
+      preLoaderRoute: typeof AuthenticatedSharedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timeline': {
+      id: '/_authenticated/timeline'
+      path: '/timeline'
+      fullPath: '/timeline'
+      preLoaderRoute: typeof AuthenticatedTimelineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/activity': {
+      id: '/_authenticated/admin/activity'
+      path: '/admin/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/admin/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/dashboard': {
+      id: '/_authenticated/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/doctor/dashboard': {
+      id: '/_authenticated/doctor/dashboard'
+      path: '/doctor/dashboard'
+      fullPath: '/doctor/dashboard'
+      preLoaderRoute: typeof AuthenticatedDoctorDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/doctor/qr-access': {
+      id: '/_authenticated/doctor/qr-access'
+      path: '/doctor/qr-access'
+      fullPath: '/doctor/qr-access'
+      preLoaderRoute: typeof AuthenticatedDoctorQrAccessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/doctor/reports': {
+      id: '/_authenticated/doctor/reports'
+      path: '/doctor/reports'
+      fullPath: '/doctor/reports'
+      preLoaderRoute: typeof AuthenticatedDoctorReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports/$reportId': {
+      id: '/_authenticated/reports/$reportId'
+      path: '/$reportId'
+      fullPath: '/reports/$reportId'
+      preLoaderRoute: typeof AuthenticatedReportsReportIdRouteImport
+      parentRoute: typeof AuthenticatedReportsRoute
+    }
+    '/_authenticated/reports/new': {
+      id: '/_authenticated/reports/new'
+      path: '/new'
+      fullPath: '/reports/new'
+      preLoaderRoute: typeof AuthenticatedReportsNewRouteImport
+      parentRoute: typeof AuthenticatedReportsRoute
+    }
+    '/_authenticated/admin/users/$userId': {
+      id: '/_authenticated/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
+    '/_authenticated/doctor/qr-access/$qrToken': {
+      id: '/_authenticated/doctor/qr-access/$qrToken'
+      path: '/$qrToken'
+      fullPath: '/doctor/qr-access/$qrToken'
+      preLoaderRoute: typeof AuthenticatedDoctorQrAccessQrTokenRouteImport
+      parentRoute: typeof AuthenticatedDoctorQrAccessRoute
+    }
+    '/_authenticated/doctor/reports/$shareId': {
+      id: '/_authenticated/doctor/reports/$shareId'
+      path: '/$shareId'
+      fullPath: '/doctor/reports/$shareId'
+      preLoaderRoute: typeof AuthenticatedDoctorReportsShareIdRouteImport
+      parentRoute: typeof AuthenticatedDoctorReportsRoute
+    }
+    '/_authenticated/reports/$reportId/edit': {
+      id: '/_authenticated/reports/$reportId/edit'
+      path: '/edit'
+      fullPath: '/reports/$reportId/edit'
+      preLoaderRoute: typeof AuthenticatedReportsReportIdEditRouteImport
+      parentRoute: typeof AuthenticatedReportsReportIdRoute
+    }
   }
 }
 
+interface AuthenticatedReportsReportIdRouteChildren {
+  AuthenticatedReportsReportIdEditRoute: typeof AuthenticatedReportsReportIdEditRoute
+}
+
+const AuthenticatedReportsReportIdRouteChildren: AuthenticatedReportsReportIdRouteChildren =
+  {
+    AuthenticatedReportsReportIdEditRoute:
+      AuthenticatedReportsReportIdEditRoute,
+  }
+
+const AuthenticatedReportsReportIdRouteWithChildren =
+  AuthenticatedReportsReportIdRoute._addFileChildren(
+    AuthenticatedReportsReportIdRouteChildren,
+  )
+
+interface AuthenticatedReportsRouteChildren {
+  AuthenticatedReportsReportIdRoute: typeof AuthenticatedReportsReportIdRouteWithChildren
+  AuthenticatedReportsNewRoute: typeof AuthenticatedReportsNewRoute
+}
+
+const AuthenticatedReportsRouteChildren: AuthenticatedReportsRouteChildren = {
+  AuthenticatedReportsReportIdRoute:
+    AuthenticatedReportsReportIdRouteWithChildren,
+  AuthenticatedReportsNewRoute: AuthenticatedReportsNewRoute,
+}
+
+const AuthenticatedReportsRouteWithChildren =
+  AuthenticatedReportsRoute._addFileChildren(AuthenticatedReportsRouteChildren)
+
+interface AuthenticatedAdminUsersRouteChildren {
+  AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+}
+
+const AuthenticatedAdminUsersRouteChildren: AuthenticatedAdminUsersRouteChildren =
+  {
+    AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+  }
+
+const AuthenticatedAdminUsersRouteWithChildren =
+  AuthenticatedAdminUsersRoute._addFileChildren(
+    AuthenticatedAdminUsersRouteChildren,
+  )
+
+interface AuthenticatedDoctorQrAccessRouteChildren {
+  AuthenticatedDoctorQrAccessQrTokenRoute: typeof AuthenticatedDoctorQrAccessQrTokenRoute
+}
+
+const AuthenticatedDoctorQrAccessRouteChildren: AuthenticatedDoctorQrAccessRouteChildren =
+  {
+    AuthenticatedDoctorQrAccessQrTokenRoute:
+      AuthenticatedDoctorQrAccessQrTokenRoute,
+  }
+
+const AuthenticatedDoctorQrAccessRouteWithChildren =
+  AuthenticatedDoctorQrAccessRoute._addFileChildren(
+    AuthenticatedDoctorQrAccessRouteChildren,
+  )
+
+interface AuthenticatedDoctorReportsRouteChildren {
+  AuthenticatedDoctorReportsShareIdRoute: typeof AuthenticatedDoctorReportsShareIdRoute
+}
+
+const AuthenticatedDoctorReportsRouteChildren: AuthenticatedDoctorReportsRouteChildren =
+  {
+    AuthenticatedDoctorReportsShareIdRoute:
+      AuthenticatedDoctorReportsShareIdRoute,
+  }
+
+const AuthenticatedDoctorReportsRouteWithChildren =
+  AuthenticatedDoctorReportsRoute._addFileChildren(
+    AuthenticatedDoctorReportsRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
+  AuthenticatedCompareRoute: typeof AuthenticatedCompareRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedImportantRoute: typeof AuthenticatedImportantRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSharedReportsRoute: typeof AuthenticatedSharedReportsRoute
+  AuthenticatedTimelineRoute: typeof AuthenticatedTimelineRoute
+  AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
+  AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRouteWithChildren
+  AuthenticatedDoctorDashboardRoute: typeof AuthenticatedDoctorDashboardRoute
+  AuthenticatedDoctorQrAccessRoute: typeof AuthenticatedDoctorQrAccessRouteWithChildren
+  AuthenticatedDoctorReportsRoute: typeof AuthenticatedDoctorReportsRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
+  AuthenticatedCompareRoute: AuthenticatedCompareRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedImportantRoute: AuthenticatedImportantRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSharedReportsRoute: AuthenticatedSharedReportsRoute,
+  AuthenticatedTimelineRoute: AuthenticatedTimelineRoute,
+  AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
+  AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRouteWithChildren,
+  AuthenticatedDoctorDashboardRoute: AuthenticatedDoctorDashboardRoute,
+  AuthenticatedDoctorQrAccessRoute:
+    AuthenticatedDoctorQrAccessRouteWithChildren,
+  AuthenticatedDoctorReportsRoute: AuthenticatedDoctorReportsRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project architecture
+- Keep account data, protected medical-report workflows, and private report files in TanStack Start and Lovable Cloud; this preserves managed sign-in and server-enforced privacy.

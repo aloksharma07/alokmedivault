@@ -1,0 +1,38 @@
+import { describe, expect, it } from "vitest";
+import { canCompareReports, getShareStatus, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry } from "@/lib/medivault";
+
+describe("MediVault report rules", () => {
+  it("accepts a valid report at the 10 MB limit and rejects one byte over", () => {
+    const header = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]);
+    expect(validateReportFile({ name: "report.pdf", type: "application/pdf", size: REPORT_MAX_BYTES, header })).toBeNull();
+    expect(validateReportFile({ name: "report.pdf", type: "application/pdf", size: REPORT_MAX_BYTES + 1, header })).toBe("The file must be 10 MB or smaller.");
+  });
+
+  it("rejects file content that does not match its extension and MIME type", () => {
+    expect(validateReportFile({
+      name: "report.pdf",
+      type: "image/png",
+      size: 10,
+      header: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    })).toContain("matches its file type");
+  });
+
+  it("treats revoked shares as revoked and shares at their expiry time as expired", () => {
+    const now = Date.parse("2026-11-21T16:48:00.000Z");
+    expect(getShareStatus({ status: "active", expires_at: "2026-11-21T16:48:00.000Z" }, now)).toBe("expired");
+    expect(getShareStatus({ status: "revoked", expires_at: "2026-11-22T16:48:00.000Z" }, now)).toBe("revoked");
+    expect(getShareStatus({ status: "active", expires_at: "2026-11-22T16:48:00.000Z" }, now)).toBe("active");
+  });
+
+  it("allows a future share expiry through one year and rejects longer access", () => {
+    const now = Date.parse("2026-11-21T16:48:00.000Z");
+    expect(validateShareExpiry("2027-11-21T16:48:00.000Z", now)).toBeNull();
+    expect(validateShareExpiry("2027-11-21T16:48:00.001Z", now)).toBe("Expiry cannot be more than 1 year from now.");
+  });
+
+  it("compares only two different reports from the same category", () => {
+    expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "blood" })).toBe(true);
+    expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "scan" })).toBe(false);
+    expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "a", category_id: "blood" })).toBe(false);
+  });
+});

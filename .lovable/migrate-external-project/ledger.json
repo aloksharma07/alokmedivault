@@ -1,0 +1,98 @@
+{
+  "source": "code-archive",
+  "project": "MediVault medical report management",
+  "source_of_truth": "The outer project copy, which contains the QR patient-access additions; the nested folder is an older duplicate.",
+  "capabilities": [
+    {
+      "capability": "application code and routes",
+      "source": "Flask/Jinja patient, doctor, and admin application in the outer archive folder",
+      "outcome": "recreate in the Lovable app, including patient report management, time-limited shares, QR access, account settings, and admin screens",
+      "status": "in_progress",
+      "next_action": "finish the preview and verify the important flows"
+    },
+    {
+      "capability": "database schema",
+      "source": "SQLite schema in models/__init__.py",
+      "outcome": "migrate the application tables to Lovable Cloud with ownership and role protections",
+      "status": "in_progress",
+      "next_action": "verify the Cloud schema and application reads/writes"
+    },
+    {
+      "capability": "application records",
+      "source": "medical_reports.db included in the ZIP; the required record-sanitizing tool rejected this SQLite file",
+      "outcome": "migrate only after receiving filtered CSV or JSON table exports; no record values were read or imported",
+      "status": "pending",
+      "next_action": "after the preview, request sanitized exports for the application tables"
+    },
+    {
+      "capability": "auth identities",
+      "source": "user rows are inside the SQLite file; no separate user export was attached",
+      "outcome": "move accounts to Lovable Cloud; existing passwords and sessions cannot carry over, so imported users will verify their email and choose a new password",
+      "status": "pending",
+      "next_action": "after the preview, request user rows with original IDs and email addresses, then verify sign-in and record access"
+    },
+    {
+      "capability": "authorization",
+      "source": "Flask role decorators, report ownership checks, and doctor share expiry checks",
+      "outcome": "recreated patient, doctor, and admin boundaries in Cloud role records, row policies, and server-side checks",
+      "status": "in_progress",
+      "next_action": "test owner, doctor-share, QR, and admin access boundaries"
+    },
+    {
+      "capability": "uploaded report file bytes",
+      "source": "no uploads folder or report files found in the ZIP; metadata may exist in the SQLite file",
+      "outcome": "private Cloud storage is ready for new uploads; existing file bytes remain pending",
+      "status": "pending",
+      "next_action": "after the preview, request the existing report files and a mapping to original report IDs"
+    },
+    {
+      "capability": "external providers",
+      "source": "Flask, SQLite, local file storage, and Chart.js CDN references; no user-owned provider integration detected",
+      "outcome": "replace local persistence with Lovable Cloud and recreate charts without carrying a provider account",
+      "status": "verified",
+      "next_action": "none"
+    },
+    {
+      "capability": "public endpoints and callbacks",
+      "source": "Vercel Python entry point routes requests into the app; no distinct external API callers or OAuth callbacks detected",
+      "outcome": "recreate the first-party app endpoints; no external caller contract identified to preserve",
+      "status": "verified",
+      "next_action": "none identified"
+    },
+    {
+      "capability": "webhooks",
+      "source": "not detected in the archive",
+      "outcome": "none identified",
+      "status": "verified",
+      "next_action": "none identified"
+    },
+    {
+      "capability": "scheduled jobs",
+      "source": "not detected in the archive",
+      "outcome": "none identified",
+      "status": "verified",
+      "next_action": "none identified"
+    },
+    {
+      "capability": "secrets",
+      "source": "no environment-variable names or secret files detected; source has a local Flask session-key fallback",
+      "outcome": "do not carry the source session key into the new app; use Cloud-managed auth",
+      "status": "verified",
+      "next_action": "none"
+    },
+    {
+      "capability": "cutover",
+      "source": "Vercel deployment configuration is present; no source domain or account handoff was supplied",
+      "outcome": "keep the old deployment untouched until the new app and data are verified",
+      "status": "pending",
+      "next_action": "confirm the intended production URL and cutover after records and file bytes are migrated"
+    },
+    {
+      "capability": "verification",
+      "source": "migration work not yet complete",
+      "outcome": "verify routes, Cloud data writes, upload/download, account flow, and privacy boundaries",
+      "status": "pending",
+      "next_action": "run after implementation and data are available"
+    }
+  ]
+}
