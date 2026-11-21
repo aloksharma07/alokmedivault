@@ -47,4 +47,14 @@ describe("MediVault report rules", () => {
     const migration = readFileSync(resolve(process.cwd(), "drizzle/migrations/0004_allow_owner_cleanup_of_incomplete_uploads.sql"), "utf8");
     expect(migration).toMatch(/storage\.foldername\(name\)\)\[1\] = public\.current_patient_id\(\)::text OR public\.can_access_report_file\(name\)/);
   });
+
+  it("allows clinicians to read only reports covered by their active share or current QR access", () => {
+    const migration = readFileSync(resolve(process.cwd(), "drizzle/migrations/0005_fix_doctor_report_file_access.sql"), "utf8");
+    expect(migration).toContain("d.user_id = auth.uid()");
+    expect(migration).toContain("public.has_active_role(auth.uid(), 'doctor'::public.app_role)");
+    expect(migration).toContain("s.status = 'active'");
+    expect(migration).toContain("s.expires_at > now()");
+    expect(migration).toContain("g.qr_token = p.qr_token");
+    expect(migration).not.toContain("'admin'");
+  });
 });

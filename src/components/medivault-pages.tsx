@@ -52,13 +52,14 @@ function categoryIcon(icon: string) {
   return <FileHeart size={17} />;
 }
 
-function ReportRow({ report, category, showStar = true, onStar }: { report: Report; category?: Category | undefined; showStar?: boolean; onStar?: () => void }) {
+function ReportRow({ report, category, showStar = true, onStar, onPreview }: { report: Report; category?: Category | undefined; showStar?: boolean; onStar?: () => void; onPreview?: () => void }) {
   return <div className="report-row">
     <span className="report-category-icon">{categoryIcon(category?.icon ?? "file")}</span>
     <Link to="/reports/$reportId" params={{ reportId: report.id }} className="report-row-main">
       <strong>{report.title}</strong><span>{category?.name ?? "Report"} · {report.hospital_name || report.laboratory_name || "Clinic not specified"}</span>
     </Link>
     <span className="report-row-date">{formatDate(report.report_date)}</span>
+    {onPreview && <Button variant="ghost" size="icon" title="Preview report" aria-label={`Preview ${report.title}`} onClick={onPreview}><Eye size={16} /></Button>}
     {showStar && <Button variant="ghost" size="icon" className={report.is_important ? "star-button is-starred" : "star-button"} aria-label={report.is_important ? "Remove from important reports" : "Mark as important"} onClick={onStar}><Star size={17} fill={report.is_important ? "currentColor" : "none"} /></Button>}
   </div>;
 }
@@ -218,6 +219,7 @@ function ReportsPage({ onlyImportant = false }: { onlyImportant?: boolean }) {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [sort, setSort] = useState("newest");
+  const [preview, setPreview] = useState<{ url: string; type: string; title: string } | null>(null);
   const reports = data.reports.filter((report) => {
     if (onlyImportant && !report.is_important) return false;
     const searchIn = `${report.title} ${report.hospital_name} ${report.laboratory_name} ${report.doctor_name}`.toLowerCase();
@@ -237,10 +239,17 @@ function ReportsPage({ onlyImportant = false }: { onlyImportant?: boolean }) {
     }
   }
 
+  async function previewReport(report: Report) {
+    const { data: signed, error } = await supabase.storage.from("medical-reports").createSignedUrl(report.storage_path, 300);
+    if (error) { toast.error(error.message || "The report file could not be opened."); return; }
+    setPreview({ url: signed.signedUrl, type: report.file_type, title: report.title });
+  }
+
   return <div className="page-section"><SectionHeading eyebrow={onlyImportant ? "PINNED FOR QUICK ACCESS" : "YOUR LIBRARY"} title={onlyImportant ? "Important reports" : "My reports"} description={onlyImportant ? "Reports you have marked for quick access." : `${data.reports.length} report${data.reports.length === 1 ? "" : "s"} in your private library.`} action={<Button asChild><Link to="/reports/new"><FilePlus2 size={17} /> Add report</Link></Button>} />
     <div className="filter-toolbar"><div className="search-control"><Search size={17} /><Input aria-label="Search reports" placeholder="Search title, hospital, or doctor" value={query} onChange={(event) => setQuery(event.target.value)} /></div><select className="field-control" aria-label="Category" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">All categories</option>{data.categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><select className="field-control" aria-label="Hospital or laboratory" value={hospital} onChange={(event) => setHospital(event.target.value)}><option value="">All locations</option>{hospitals.map((item) => <option key={item} value={item}>{item}</option>)}</select><select className="field-control" aria-label="Doctor" value={doctor} onChange={(event) => setDoctor(event.target.value)}><option value="">All doctors</option>{doctors.map((item) => <option key={item} value={item}>{item}</option>)}</select><select className="field-control" aria-label="Sort reports" value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="uploaded">Recently added</option></select></div>
     <div className="filter-toolbar date-filter"><label className="date-field"><span>From</span><Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /></label><label className="date-field"><span>To</span><Input type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></label><span className="result-count">{reports.length} result{reports.length === 1 ? "" : "s"}</span></div>
-    <div className="surface list-surface">{reports.length ? reports.map((report) => <ReportRow key={report.id} report={report} category={data.categories.find((item) => item.id === report.category_id)} onStar={() => void toggleImportant(report)} />) : <EmptyState title={onlyImportant ? "Nothing marked important" : "No reports match"} detail={onlyImportant ? "Tap the star on any report to keep it here." : "Try changing your search or add your first report."} action={!onlyImportant && <Button asChild><Link to="/reports/new">Upload a report</Link></Button>} />}</div>
+    <div className="surface list-surface">{reports.length ? reports.map((report) => <ReportRow key={report.id} report={report} category={data.categories.find((item) => item.id === report.category_id)} onStar={() => void toggleImportant(report)} onPreview={() => void previewReport(report)} />) : <EmptyState title={onlyImportant ? "Nothing marked important" : "No reports match"} detail={onlyImportant ? "Tap the star on any report to keep it here." : "Try changing your search or add your first report."} action={!onlyImportant && <Button asChild><Link to="/reports/new">Upload a report</Link></Button>} />}</div>
+    {preview && <PreviewDialog preview={preview} onClose={() => setPreview(null)} />}
   </div>;
 }
 
@@ -631,7 +640,7 @@ function DoctorShareDetails({ share }: { share: DoctorShare }) {
   async function openFile(download = false) {
     if (status !== "active" || !share.storage_path) { toast.error("This report is no longer available."); return; }
     const { data, error } = await supabase.storage.from("medical-reports").createSignedUrl(share.storage_path, 300, { download });
-    if (error) { toast.error("This report is no longer available."); return; }
+    if (error) { toast.error(error.message || "This report is no longer available."); return; }
     if (download) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
     else setPreview({ url: data.signedUrl, type: share.file_type, title: share.title });
     if (download) await supabase.rpc("log_activity", { _action: "Report downloaded", _details: `Downloaded ${share.title}`, _report_id: share.report_id });
