@@ -256,6 +256,51 @@ export type Database = {
         }
         Relationships: []
       }
+      report_public_shares: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          patient_id: string
+          report_id: string
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          patient_id: string
+          report_id: string
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          patient_id?: string
+          report_id?: string
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_public_shares_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_public_shares_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_shares: {
         Row: {
           created_at: string
@@ -440,6 +485,10 @@ export type Database = {
       }
       can_access_report: { Args: { _report_id: string }; Returns: boolean }
       can_access_report_file: { Args: { _path: string }; Returns: boolean }
+      create_report_public_share: {
+        Args: { _expires_at: string; _report_id: string; _token_hash: string }
+        Returns: string
+      }
       create_report_share: {
         Args: {
           _doctor_id: string
@@ -544,6 +593,22 @@ export type Database = {
         }[]
       }
       reset_patient_qr: { Args: never; Returns: string }
+      resolve_report_public_share: {
+        Args: { _token_hash: string }
+        Returns: {
+          category_name: string
+          expires_at: string
+          file_name: string
+          file_type: string
+          report_date: string
+          report_title: string
+          storage_path: string
+        }[]
+      }
+      revoke_report_public_share: {
+        Args: { _share_id: string }
+        Returns: undefined
+      }
       revoke_report_share: { Args: { _share_id: string }; Returns: undefined }
     }
     Enums: {

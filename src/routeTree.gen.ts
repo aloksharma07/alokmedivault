@@ -24,6 +24,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSharedReportsRouteImport } from './routes/_authenticated/shared-reports'
 import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
+import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
@@ -117,6 +118,11 @@ const AuthenticatedTimelineRoute = AuthenticatedTimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ShareTokenRoute = ShareTokenRouteImport.update({
+  id: '/share/$token',
+  path: '/share/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminActivityRoute =
   AuthenticatedAdminActivityRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/shared-reports': typeof AuthenticatedSharedReportsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
+  '/share/$token': typeof ShareTokenRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/shared-reports': typeof AuthenticatedSharedReportsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
+  '/share/$token': typeof ShareTokenRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shared-reports': typeof AuthenticatedSharedReportsRoute
   '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
+  '/share/$token': typeof ShareTokenRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shared-reports'
     | '/timeline'
+    | '/share/$token'
     | '/admin/activity'
     | '/admin/categories'
     | '/admin/dashboard'
@@ -374,6 +384,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shared-reports'
     | '/timeline'
+    | '/share/$token'
     | '/admin/activity'
     | '/admin/categories'
     | '/admin/dashboard'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/shared-reports'
     | '/_authenticated/timeline'
+    | '/share/$token'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/dashboard'
@@ -432,6 +444,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ShareTokenRoute: typeof ShareTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -540,6 +553,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/timeline'
       preLoaderRoute: typeof AuthenticatedTimelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/share/$token': {
+      id: '/share/$token'
+      path: '/share/$token'
+      fullPath: '/share/$token'
+      preLoaderRoute: typeof ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/activity': {
       id: '/_authenticated/admin/activity'
@@ -804,6 +824,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ShareTokenRoute: ShareTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

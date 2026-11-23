@@ -3,9 +3,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity, ArrowDownToLine, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown,
-  Clock3, Download, Eye, FileHeart, FilePlus2, FileSearch2, HeartPulse, Hospital,
+  Clock3, Copy, Download, Eye, FileHeart, FilePlus2, FileSearch2, HeartPulse, Hospital,
   Image, LockKeyhole, MoreHorizontal, Pencil, QrCode, Search, Share2, ShieldCheck,
-  Star, Stethoscope, Trash2, Upload, Users, X,
+  Star, Stethoscope, Trash2, Upload, Users, X, Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
   canCompareReports, formatDate, formatDateTime, formatSize, getShareStatus, initials,
   qrPatientQueryOptions, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry,
   workspaceQueryOptions, type Activity as ActivityRow, type AdminUser, type Category,
-  type DoctorDirectoryEntry, type DoctorShare, type PatientShare, type Report,
+  type DoctorDirectoryEntry, type DoctorShare, type PatientShare, type PublicShare, type Report,
   type UserRole, type WorkspaceData,
 } from "@/lib/medivault";
 
@@ -359,6 +359,7 @@ function ReportDetails({ report }: { report: Report }) {
   const queryClient = useQueryClient();
   const [preview, setPreview] = useState<{ url: string; type: string; title: string } | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [publicShareOpen, setPublicShareOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const category = data.categories.find((item) => item.id === report.category_id);
 
@@ -391,11 +392,83 @@ function ReportDetails({ report }: { report: Report }) {
   return <div className="page-section narrow-page"><Link to="/reports" className="back-link"><ArrowLeft size={16} /> Back to reports</Link>
     <div className="detail-header"><div className="detail-title-line"><span className="report-category-icon large">{categoryIcon(category?.icon ?? "file")}</span><div><span className="eyebrow">{category?.name ?? "MEDICAL REPORT"}</span><h2>{report.title}</h2><p>{formatDate(report.report_date)} <span className="dot-separator">·</span> Added {formatDate(report.uploaded_at)}</p></div></div><div className="detail-actions"><Button variant={report.is_important ? "secondary" : "outline"} size="icon" title="Toggle important" aria-label="Toggle important" onClick={() => void toggleStar()}><Star size={17} fill={report.is_important ? "currentColor" : "none"} /></Button><Button variant="outline" size="icon" title="Edit details" aria-label="Edit details" asChild><Link to="/reports/$reportId/edit" params={{ reportId: report.id }}><Pencil size={16} /></Link></Button><Button variant="outline" size="icon" title="Delete report" aria-label="Delete report" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /></Button></div></div>
     <div className="detail-grid"><section className="surface detail-panel"><span className="eyebrow">REPORT INFORMATION</span><dl className="detail-list"><div><dt>Hospital</dt><dd>{report.hospital_name || "—"}</dd></div><div><dt>Laboratory</dt><dd>{report.laboratory_name || "—"}</dd></div><div><dt>Doctor</dt><dd>{report.doctor_name || "—"}</dd></div><div><dt>Department</dt><dd>{report.department || "—"}</dd></div><div><dt>File</dt><dd>{report.file_name} <span className="muted-inline">· {formatSize(report.file_size)}</span></dd></div><div className="full"><dt>Notes</dt><dd className="pre-line">{report.notes || "No notes added."}</dd></div></dl></section>
-      <section className="surface file-panel"><span className="file-panel-icon">{report.file_type === "pdf" ? <FileHeart size={25} /> : <Image size={25} />}</span><span className="eyebrow">PRIVATE FILE</span><h3>{report.file_name}</h3><p>{report.file_type.toUpperCase()} · {formatSize(report.file_size)}</p><Button className="full-button" onClick={() => void openFile()}><Eye size={16} /> Preview file</Button><Button className="full-button" variant="outline" onClick={() => void openFile(true)}><ArrowDownToLine size={16} /> Download</Button><Button className="full-button" variant="secondary" onClick={() => setShareOpen(true)}><Share2 size={16} /> Share with a doctor</Button></section></div>
+      <section className="surface file-panel"><span className="file-panel-icon">{report.file_type === "pdf" ? <FileHeart size={25} /> : <Image size={25} />}</span><span className="eyebrow">PRIVATE FILE</span><h3>{report.file_name}</h3><p>{report.file_type.toUpperCase()} · {formatSize(report.file_size)}</p><Button className="full-button" onClick={() => void openFile()}><Eye size={16} /> Preview file</Button><Button className="full-button" variant="outline" onClick={() => void openFile(true)}><ArrowDownToLine size={16} /> Download</Button><Button className="full-button" variant="secondary" onClick={() => setShareOpen(true)}><Share2 size={16} /> Share with a doctor</Button><Button className="full-button" variant="outline" onClick={() => setPublicShareOpen(true)}><Link2 size={16} /> Create public link</Button></section></div>
     <section className="surface detail-panel share-history"><div className="panel-heading"><div><span className="eyebrow">ACCESS HISTORY</span><h3>Report shares</h3></div><Button size="sm" variant="outline" onClick={() => setShareOpen(true)}><Share2 size={15} /> Share report</Button></div>{data.shares.filter((share) => "report_id" in share && share.report_id === report.id).length ? data.shares.filter((share) => "report_id" in share && share.report_id === report.id).map((share) => <ShareRow key={share.share_id} share={share as PatientShare} />) : <p className="quiet-note">This report has not been shared.</p>}</section>
     {shareOpen && <ShareDialog report={report} onClose={() => setShareOpen(false)} />}
+    {publicShareOpen && <PublicShareDialog report={report} onClose={() => setPublicShareOpen(false)} />}
     {preview && <PreviewDialog preview={preview} onClose={() => setPreview(null)} />}
     {deleteOpen && <ConfirmDialog title="Delete this report?" detail="The report and its saved file will be permanently removed." onCancel={() => setDeleteOpen(false)} onConfirm={() => void removeReport()} />}
+  </div>;
+}
+
+function PublicShareDialog({ report, onClose }: { report: Report; onClose: () => void }) {
+  const data = useWorkspace();
+  const queryClient = useQueryClient();
+  const [link, setLink] = useState<{ id: string; url: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [revokeTarget, setRevokeTarget] = useState<PublicShare | null>(null);
+  const shares = data.publicShares.filter((share) => share.report_id === report.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  async function createLink() {
+    setBusy(true);
+    try {
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+      const tokenHash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 - 60_000).toISOString();
+      const { data: shareId, error } = await supabase.rpc("create_report_public_share", {
+        _report_id: report.id,
+        _token_hash: tokenHash,
+        _expires_at: expiresAt,
+      });
+      if (error) throw error;
+      if (!shareId) throw new Error("Could not create this report link.");
+      setLink({ id: shareId, url: `${window.location.origin}/share/${token}` });
+      setCopied(false);
+      await queryClient.invalidateQueries({ queryKey: ["medivault", "workspace"] });
+      toast.success("Share link created. It expires in 7 days.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not create this report link.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyLink() {
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link.url);
+      setCopied(true);
+      toast.success("Link copied.");
+    } catch {
+      toast.error("Copy was blocked. Select the link and copy it.");
+    }
+  }
+
+  async function revokeShare(share: PublicShare) {
+    const { error } = await supabase.rpc("revoke_report_public_share", { _share_id: share.id });
+    if (error) toast.error(error.message);
+    else {
+      if (link?.id === share.id) setLink(null);
+      await queryClient.invalidateQueries({ queryKey: ["medivault", "workspace"] });
+      toast.success("Public link revoked.");
+    }
+    setRevokeTarget(null);
+  }
+
+  return <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="dialog-panel public-share-dialog" role="dialog" aria-modal="true" aria-labelledby="public-share-title">
+      <div className="dialog-heading"><div><span className="eyebrow">ONE REPORT · 7 DAYS</span><h3 id="public-share-title">Create a link for “{report.title}”</h3></div><Button variant="ghost" size="icon" aria-label="Close dialog" onClick={onClose}><X size={18} /></Button></div>
+      <p className="public-share-description">Anyone with the link can view this report. It will not reveal any other report in your library, and you can revoke access at any time.</p>
+      {link && <div className="public-share-link"><Input aria-label="Public report link" readOnly value={link.url} /><Button variant="outline" onClick={() => void copyLink()}><Copy size={16} />{copied ? "Copied" : "Copy link"}</Button><span className="field-hint">Copy it now; for privacy, the link cannot be shown again after this dialog closes.</span></div>}
+      <div className="public-share-actions"><Button onClick={() => void createLink()} disabled={busy}><Link2 size={16} />{busy ? "Creating…" : "Create new link"}</Button></div>
+      <div className="public-share-history"><h4>Existing links</h4>{shares.length ? shares.map((share) => {
+        const status = getShareStatus({ status: share.revoked_at ? "revoked" : "active", expires_at: share.expires_at });
+        return <div className="public-share-row" key={share.id}><div><StatusPill status={status} /><small>{status === "active" ? "Expires" : "Ended"} {formatDateTime(share.expires_at)}</small></div>{status === "active" && <Button variant="outline" size="sm" onClick={() => setRevokeTarget(share)}>Revoke</Button>}</div>;
+      }) : <p className="quiet-note">No public links have been created for this report.</p>}</div>
+      {revokeTarget && <ConfirmDialog title="Revoke this public link?" detail="Anyone using this link will immediately lose access to this report." onCancel={() => setRevokeTarget(null)} onConfirm={() => void revokeShare(revokeTarget)} />}
+    </section>
   </div>;
 }
 

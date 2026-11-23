@@ -43,6 +43,13 @@
       "when": 1795283212173,
       "tag": "0005_fix_doctor_report_file_access",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795422005053,
+      "tag": "0006_add_single_report_public_shares",
+      "breakpoints": true
     }
   ]
 }

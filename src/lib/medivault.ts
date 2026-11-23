@@ -10,6 +10,7 @@ export type Doctor = Tables<"doctors">;
 export type Report = Tables<"reports">;
 export type Category = Tables<"report_categories">;
 export type Activity = Tables<"activity_logs">;
+export type PublicShare = Pick<Tables<"report_public_shares">, "id" | "report_id" | "patient_id" | "expires_at" | "revoked_at" | "created_at">;
 export type DoctorShare = Database["public"]["Functions"]["doctor_share_list"]["Returns"][number];
 export type PatientShare = Database["public"]["Functions"]["patient_share_list"]["Returns"][number];
 export type DoctorDirectoryEntry = Database["public"]["Functions"]["list_active_doctors"]["Returns"][number];
@@ -25,6 +26,7 @@ export type WorkspaceData = {
   categories: Category[];
   availableDoctors: DoctorDirectoryEntry[];
   shares: Array<DoctorShare | PatientShare>;
+  publicShares: PublicShare[];
   activities: Activity[];
   users: AdminUser[];
 };
@@ -107,6 +109,7 @@ async function loadWorkspace(): Promise<WorkspaceData> {
     categories: categoryResult.data,
     availableDoctors: [] as DoctorDirectoryEntry[],
     shares: [] as Array<DoctorShare | PatientShare>,
+    publicShares: [] as PublicShare[],
     activities: [] as Activity[],
     users: [] as AdminUser[],
   };
@@ -115,17 +118,19 @@ async function loadWorkspace(): Promise<WorkspaceData> {
     const patientResult = await supabase.from("patients").select("*").eq("user_id", user.id).maybeSingle();
     if (patientResult.error) throw patientResult.error;
     if (!patientResult.data) throw new Error("Your patient profile is not ready yet.");
-    const [reportsResult, sharesResult, activitiesResult, doctorsResult] = await Promise.all([
+    const [reportsResult, sharesResult, activitiesResult, doctorsResult, publicSharesResult] = await Promise.all([
       supabase.from("reports").select("*").eq("patient_id", patientResult.data.id).order("report_date", { ascending: false }),
       supabase.rpc("patient_share_list"),
       supabase.from("activity_logs").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(200),
       supabase.rpc("list_active_doctors"),
+      supabase.from("report_public_shares").select("id, report_id, patient_id, expires_at, revoked_at, created_at").eq("patient_id", patientResult.data.id).order("created_at", { ascending: false }),
     ]);
     if (reportsResult.error) throw reportsResult.error;
     if (sharesResult.error) throw sharesResult.error;
     if (activitiesResult.error) throw activitiesResult.error;
     if (doctorsResult.error) throw doctorsResult.error;
-    return { ...base, patient: patientResult.data, reports: reportsResult.data, shares: sharesResult.data, activities: activitiesResult.data, availableDoctors: doctorsResult.data };
+    if (publicSharesResult.error) throw publicSharesResult.error;
+    return { ...base, patient: patientResult.data, reports: reportsResult.data, shares: sharesResult.data, publicShares: publicSharesResult.data, activities: activitiesResult.data, availableDoctors: doctorsResult.data };
   }
 
   if (base.role === "doctor") {
