@@ -15,7 +15,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { explainReportText } from "@/lib/report-ai.functions";
-import { limitReportAiText, REPORT_AI_MAX_MESSAGES, REPORT_AI_MAX_QUESTION_CHARS } from "@/lib/report-ai.shared";
+import {
+  limitReportAiText,
+  REPORT_AI_MAX_COMPARISON_REPORTS,
+  REPORT_AI_MAX_MESSAGES,
+  REPORT_AI_MAX_QUESTION_CHARS,
+} from "@/lib/report-ai.shared";
 import {
   canCompareReports, formatDate, formatDateTime, formatSize, getShareStatus, initials,
   qrPatientQueryOptions, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry,
@@ -388,6 +393,7 @@ async function extractReportPdfText(report: Report) {
 }
 
 type ReportAiMessage = { role: "user" | "assistant"; content: string };
+const ALL_EARLIER_REPORTS = "__all_earlier_reports__";
 
 function ReportAiPanel({ report, previousReports }: { report: Report; previousReports: Report[] }) {
   const askGroq = useServerFn(explainReportText);
@@ -397,20 +403,26 @@ function ReportAiPanel({ report, previousReports }: { report: Report; previousRe
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const previousReport = previousReports.find((item) => item.id === previousId);
+  const selectedPreviousReports = previousId === ALL_EARLIER_REPORTS
+    ? previousReports.slice(0, REPORT_AI_MAX_COMPARISON_REPORTS)
+    : previousReport ? [previousReport] : [];
+  const comparisonLimitExceeded = previousId === ALL_EARLIER_REPORTS && previousReports.length > REPORT_AI_MAX_COMPARISON_REPORTS;
 
   async function submitQuestion() {
     setBusy(true);
     setError("");
     try {
       const reportText = await extractReportPdfText(report);
-      const previousReportText = previousReport ? await extractReportPdfText(previousReport) : null;
+      const previousReportsText: Array<{ id: string; text: string }> = [];
+      for (const previous of selectedPreviousReports) {
+        previousReportsText.push({ id: previous.id, text: await extractReportPdfText(previous) });
+      }
       const result = await askGroq({ data: {
         reportId: report.id,
         reportText,
         question: question.trim(),
         conversation: conversation.slice(-REPORT_AI_MAX_MESSAGES),
-        previousReportId: previousReport?.id ?? null,
-        previousReportText,
+        previousReports: previousReportsText,
       } });
       const userMessage: ReportAiMessage = { role: "user", content: question.trim() || "Summarize this report" };
       const aiMessage: ReportAiMessage = { role: "assistant", content: result.answer };
@@ -425,10 +437,10 @@ function ReportAiPanel({ report, previousReports }: { report: Report; previousRe
 
   return <section className="surface detail-panel report-ai-panel">
     <div className="report-ai-heading"><div><span className="eyebrow">REPORT AI CHAT</span><h3>Summarize or ask about this report</h3><p>Ask follow-up questions or compare with an earlier report.</p></div><Sparkles size={20} /></div>
-    {previousReports.length > 0 && <div className="form-field"><Label htmlFor="report-ai-previous">Compare with earlier report</Label><select id="report-ai-previous" className="field-control" value={previousId} onChange={(event) => { setPreviousId(event.target.value); setConversation([]); }} disabled={busy}><option value="">No comparison</option>{previousReports.map((item) => <option key={item.id} value={item.id}>{item.title} · {formatDate(item.report_date)}</option>)}</select></div>}
+    {previousReports.length > 0 && <div className="form-field"><Label htmlFor="report-ai-previous">Compare with earlier reports</Label><select id="report-ai-previous" className="field-control" value={previousId} onChange={(event) => { setPreviousId(event.target.value); setConversation([]); }} disabled={busy}><option value="">No comparison</option>{previousReports.length > 1 && <option value={ALL_EARLIER_REPORTS}>{previousReports.length > REPORT_AI_MAX_COMPARISON_REPORTS ? `All earlier PDF reports (most recent ${REPORT_AI_MAX_COMPARISON_REPORTS})` : "All earlier PDF reports"}</option>}{previousReports.map((item) => <option key={item.id} value={item.id}>{item.title} · {formatDate(item.report_date)}</option>)}</select></div>}
     <div className="form-field"><Label htmlFor="report-ai-question">Your message</Label><Textarea id="report-ai-question" maxLength={REPORT_AI_MAX_QUESTION_CHARS} rows={2} value={question} onChange={(event) => setQuestion(event.target.value)} placeholder={conversation.length ? "Ask a follow-up about this report" : "Ask about a result, or leave blank for a summary"} disabled={busy} /></div>
-    <div className="privacy-callout"><LockKeyhole size={16} /> The selected PDF text and optional earlier PDF text are sent to Groq; they may contain personal details. The answer is not a diagnosis, and scanned PDFs are not readable here.</div>
-    <div className="form-actions"><Button type="button" disabled={busy || report.file_type !== "pdf"} onClick={() => void submitQuestion()}><Sparkles size={16} />{busy ? "Reading report…" : question.trim() ? "Send message" : previousReport ? "Compare reports" : "Summarize report"}</Button></div>
+    <div className="privacy-callout"><LockKeyhole size={16} /> The selected PDF text and selected earlier PDF text(s) are sent to Groq; they may contain personal details. The answer is not a diagnosis, and scanned PDFs are not readable here.{comparisonLimitExceeded ? ` Only the ${REPORT_AI_MAX_COMPARISON_REPORTS} most recent earlier PDFs are included.` : ""}</div>
+    <div className="form-actions"><Button type="button" disabled={busy || report.file_type !== "pdf"} onClick={() => void submitQuestion()}><Sparkles size={16} />{busy ? "Reading report…" : question.trim() ? "Send message" : selectedPreviousReports.length ? "Compare reports" : "Summarize report"}</Button></div>
     {error && <p className="report-ai-error" role="alert">{error}</p>}
     {conversation.length > 0 && <div className="report-ai-conversation" aria-live="polite">{conversation.map((message, index) => <div className={`report-ai-message report-ai-message-${message.role}`} key={`${index}-${message.role}`}><strong>{message.role === "user" ? "You" : "MediVault AI"}</strong><p>{message.content}</p></div>)}</div>}
   </section>;
