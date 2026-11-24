@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { canCompareReports, getShareStatus, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry } from "@/lib/medivault";
-import { limitReportAiText, REPORT_AI_MAX_OUTPUT_TOKENS, REPORT_AI_MAX_QUESTION_CHARS, REPORT_AI_MAX_TEXT_CHARS } from "@/lib/report-ai.shared";
+import { limitReportAiText, REPORT_AI_MAX_MESSAGES, REPORT_AI_MAX_OUTPUT_TOKENS, REPORT_AI_MAX_QUESTION_CHARS, REPORT_AI_MAX_TEXT_CHARS } from "@/lib/report-ai.shared";
 
 describe("MediVault report rules", () => {
   it("accepts a valid report at the 10 MB limit and rejects one byte over", () => {
@@ -42,7 +42,8 @@ describe("MediVault report rules", () => {
   it("keeps report AI context and answers small to limit token use", () => {
     expect(REPORT_AI_MAX_TEXT_CHARS).toBe(3200);
     expect(REPORT_AI_MAX_QUESTION_CHARS).toBe(240);
-    expect(REPORT_AI_MAX_OUTPUT_TOKENS).toBe(120);
+    expect(REPORT_AI_MAX_MESSAGES).toBe(6);
+    expect(REPORT_AI_MAX_OUTPUT_TOKENS).toBe(260);
     expect(limitReportAiText("a".repeat(3201))).toHaveLength(3200);
   });
 

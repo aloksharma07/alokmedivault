@@ -6,7 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 const tokenInput = z.object({ token: z.string().regex(/^[0-9a-f]{64}$/) });
 
 export const loadPublicReportShare = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => tokenInput.parse(input))
+  .validator((input: unknown) => tokenInput.parse(input))
   .handler(async ({ data }) => {
     const tokenDigest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(data.token));
     const tokenHash = Array.from(new Uint8Array(tokenDigest), (byte) => byte.toString(16).padStart(2, "0")).join("");
