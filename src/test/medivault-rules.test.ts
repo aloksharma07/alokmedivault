@@ -43,7 +43,7 @@ describe("MediVault report rules", () => {
     expect(REPORT_AI_MAX_TEXT_CHARS).toBe(3200);
     expect(REPORT_AI_MAX_QUESTION_CHARS).toBe(240);
     expect(REPORT_AI_MAX_MESSAGES).toBe(6);
-    expect(REPORT_AI_MAX_OUTPUT_TOKENS).toBe(260);
+    expect(REPORT_AI_MAX_OUTPUT_TOKENS).toBe(1024);
     expect(limitReportAiText("a".repeat(3201))).toHaveLength(3200);
   });
 
