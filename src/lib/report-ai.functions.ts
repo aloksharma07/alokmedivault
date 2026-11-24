@@ -5,14 +5,21 @@ import {
   REPORT_AI_MAX_OUTPUT_TOKENS,
   REPORT_AI_MAX_MESSAGES,
   REPORT_AI_MAX_COMPARISON_REPORTS,
+  REPORT_AI_MAX_ANSWER_CHARS,
   REPORT_AI_MAX_QUESTION_CHARS,
   REPORT_AI_MAX_TEXT_CHARS,
 } from "@/lib/report-ai.shared";
 
-const conversationMessageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string().trim().min(1).max(REPORT_AI_MAX_QUESTION_CHARS),
-});
+const conversationMessageSchema = z.discriminatedUnion("role", [
+  z.object({
+    role: z.literal("user"),
+    content: z.string().trim().min(1).max(REPORT_AI_MAX_QUESTION_CHARS),
+  }),
+  z.object({
+    role: z.literal("assistant"),
+    content: z.string().trim().min(1).max(REPORT_AI_MAX_ANSWER_CHARS),
+  }),
+]);
 
 const previousReportSchema = z.object({
   id: z.string().uuid(),
