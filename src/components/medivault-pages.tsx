@@ -60,7 +60,15 @@ function categoryIcon(icon: string) {
   return <FileHeart size={17} />;
 }
 
-function ReportRow({ report, category, showStar = true, onStar, onPreview }: { report: Report; category?: Category | undefined; showStar?: boolean; onStar?: () => void; onPreview?: () => void }) {
+async function deleteReportRecord(report: Report) {
+  const { error: fileError } = await supabase.storage.from("medical-reports").remove([report.storage_path]);
+  if (fileError) throw fileError;
+  const { data: deleted, error } = await supabase.from("reports").delete().eq("id", report.id).select("id").maybeSingle();
+  if (error) throw error;
+  if (!deleted) throw new Error("The report could not be deleted. Refresh the page and try again.");
+}
+
+function ReportRow({ report, category, showStar = true, onStar, onPreview, onDelete }: { report: Report; category?: Category | undefined; showStar?: boolean; onStar?: () => void; onPreview?: () => void; onDelete?: () => void }) {
   return <div className="report-row">
     <span className="report-category-icon">{categoryIcon(category?.icon ?? "file")}</span>
     <Link to="/reports/$reportId" params={{ reportId: report.id }} className="report-row-main">
@@ -69,6 +77,7 @@ function ReportRow({ report, category, showStar = true, onStar, onPreview }: { r
     <span className="report-row-date">{formatDate(report.report_date)}</span>
     {onPreview && <Button variant="ghost" size="icon" title="Preview report" aria-label={`Preview ${report.title}`} onClick={onPreview}><Eye size={16} /></Button>}
     {showStar && <Button variant="ghost" size="icon" className={report.is_important ? "star-button is-starred" : "star-button"} aria-label={report.is_important ? "Remove from important reports" : "Mark as important"} onClick={onStar}><Star size={17} fill={report.is_important ? "currentColor" : "none"} /></Button>}
+    {onDelete && <Button variant="ghost" size="icon" title="Delete report" aria-label={`Delete ${report.title}`} onClick={onDelete}><Trash2 size={16} /></Button>}
   </div>;
 }
 
@@ -228,6 +237,8 @@ function ReportsPage({ onlyImportant = false }: { onlyImportant?: boolean }) {
   const [toDate, setToDate] = useState("");
   const [sort, setSort] = useState("newest");
   const [preview, setPreview] = useState<{ url: string; type: string; title: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const reports = data.reports.filter((report) => {
     if (onlyImportant && !report.is_important) return false;
     const searchIn = `${report.title} ${report.hospital_name} ${report.laboratory_name} ${report.doctor_name}`.toLowerCase();
@@ -253,11 +264,28 @@ function ReportsPage({ onlyImportant = false }: { onlyImportant?: boolean }) {
     setPreview({ url: signed.signedUrl, type: report.file_type, title: report.title });
   }
 
+  async function removeReport() {
+    if (!deleteTarget || deleteBusy) return;
+    setDeleteBusy(true);
+    try {
+      await deleteReportRecord(deleteTarget);
+      await supabase.rpc("log_activity", { _action: "Report deleted", _details: `Deleted ${deleteTarget.title}` });
+      await queryClient.invalidateQueries({ queryKey: ["medivault", "workspace"] });
+      toast.success("Report deleted.");
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The report could not be deleted.");
+    } finally {
+      setDeleteBusy(false);
+    }
+  }
+
   return <div className="page-section"><SectionHeading eyebrow={onlyImportant ? "PINNED FOR QUICK ACCESS" : "YOUR LIBRARY"} title={onlyImportant ? "Important reports" : "My reports"} description={onlyImportant ? "Reports you have marked for quick access." : `${data.reports.length} report${data.reports.length === 1 ? "" : "s"} in your private library.`} action={<Button asChild><Link to="/reports/new"><FilePlus2 size={17} /> Add report</Link></Button>} />
     <div className="filter-toolbar"><div className="search-control"><Search size={17} /><Input aria-label="Search reports" placeholder="Search title, hospital, or doctor" value={query} onChange={(event) => setQuery(event.target.value)} /></div><select className="field-control" aria-label="Category" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">All categories</option>{data.categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><select className="field-control" aria-label="Hospital or laboratory" value={hospital} onChange={(event) => setHospital(event.target.value)}><option value="">All locations</option>{hospitals.map((item) => <option key={item} value={item}>{item}</option>)}</select><select className="field-control" aria-label="Doctor" value={doctor} onChange={(event) => setDoctor(event.target.value)}><option value="">All doctors</option>{doctors.map((item) => <option key={item} value={item}>{item}</option>)}</select><select className="field-control" aria-label="Sort reports" value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="uploaded">Recently added</option></select></div>
     <div className="filter-toolbar date-filter"><label className="date-field"><span>From</span><Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /></label><label className="date-field"><span>To</span><Input type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></label><span className="result-count">{reports.length} result{reports.length === 1 ? "" : "s"}</span></div>
-    <div className="surface list-surface">{reports.length ? reports.map((report) => <ReportRow key={report.id} report={report} category={data.categories.find((item) => item.id === report.category_id)} onStar={() => void toggleImportant(report)} onPreview={() => void previewReport(report)} />) : <EmptyState title={onlyImportant ? "Nothing marked important" : "No reports match"} detail={onlyImportant ? "Tap the star on any report to keep it here." : "Try changing your search or add your first report."} action={!onlyImportant && <Button asChild><Link to="/reports/new">Upload a report</Link></Button>} />}</div>
+    <div className="surface list-surface">{reports.length ? reports.map((report) => <ReportRow key={report.id} report={report} category={data.categories.find((item) => item.id === report.category_id)} onStar={() => void toggleImportant(report)} onPreview={() => void previewReport(report)} onDelete={() => setDeleteTarget(report)} />) : <EmptyState title={onlyImportant ? "Nothing marked important" : "No reports match"} detail={onlyImportant ? "Tap the star on any report to keep it here." : "Try changing your search or add your first report."} action={!onlyImportant && <Button asChild><Link to="/reports/new">Upload a report</Link></Button>} />}</div>
     {preview && <PreviewDialog preview={preview} onClose={() => setPreview(null)} />}
+    {deleteTarget && <ConfirmDialog title="Delete this report?" detail={`“${deleteTarget.title}” and its saved file will be permanently removed.`} busy={deleteBusy} onCancel={() => { if (!deleteBusy) setDeleteTarget(null); }} onConfirm={() => void removeReport()} />}
   </div>;
 }
 
@@ -453,6 +481,7 @@ function ReportDetails({ report }: { report: Report }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [publicShareOpen, setPublicShareOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const category = data.categories.find((item) => item.id === report.category_id);
   const previousReports = data.reports
     .filter((item) => item.id !== report.id && item.category_id === report.category_id && item.report_date < report.report_date && item.file_type === "pdf")
@@ -473,15 +502,20 @@ function ReportDetails({ report }: { report: Report }) {
   }
 
   async function removeReport() {
-    const { error: fileError } = await supabase.storage.from("medical-reports").remove([report.storage_path]);
-    if (fileError) { toast.error(fileError.message); return; }
-    const { error } = await supabase.from("reports").delete().eq("id", report.id);
-    if (error) { toast.error(error.message); return; }
-    await supabase.rpc("log_activity", { _action: "Report deleted", _details: `Deleted ${report.title}` });
-    await queryClient.invalidateQueries({ queryKey: ["medivault", "workspace"] });
-    toast.success("Report deleted.");
-    setDeleteOpen(false);
-    window.location.assign("/reports");
+    if (deleteBusy) return;
+    setDeleteBusy(true);
+    try {
+      await deleteReportRecord(report);
+      await supabase.rpc("log_activity", { _action: "Report deleted", _details: `Deleted ${report.title}` });
+      await queryClient.invalidateQueries({ queryKey: ["medivault", "workspace"] });
+      toast.success("Report deleted.");
+      setDeleteOpen(false);
+      window.location.assign("/reports");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The report could not be deleted.");
+    } finally {
+      setDeleteBusy(false);
+    }
   }
 
   return <div className="page-section narrow-page"><Link to="/reports" className="back-link"><ArrowLeft size={16} /> Back to reports</Link>
@@ -493,7 +527,7 @@ function ReportDetails({ report }: { report: Report }) {
     {shareOpen && <ShareDialog report={report} onClose={() => setShareOpen(false)} />}
     {publicShareOpen && <PublicShareDialog report={report} onClose={() => setPublicShareOpen(false)} />}
     {preview && <PreviewDialog preview={preview} onClose={() => setPreview(null)} />}
-    {deleteOpen && <ConfirmDialog title="Delete this report?" detail="The report and its saved file will be permanently removed." onCancel={() => setDeleteOpen(false)} onConfirm={() => void removeReport()} />}
+    {deleteOpen && <ConfirmDialog title="Delete this report?" detail="The report and its saved file will be permanently removed." busy={deleteBusy} onCancel={() => { if (!deleteBusy) setDeleteOpen(false); }} onConfirm={() => void removeReport()} />}
   </div>;
 }
 
@@ -920,6 +954,6 @@ function PreviewDialog({ preview, onClose }: { preview: { url: string; type: str
   return <div className="dialog-backdrop preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="preview-dialog" role="dialog" aria-modal="true" aria-label={`Preview ${preview.title}`}><div className="preview-toolbar"><strong>{preview.title}</strong><div><a className="icon-action" href={preview.url} download aria-label="Download file"><Download size={17} /></a><Button variant="ghost" size="icon" aria-label="Close preview" onClick={onClose}><X size={18} /></Button></div></div>{preview.type === "pdf" ? <iframe title={preview.title} src={preview.url} className="preview-frame" /> : <img src={preview.url} alt={preview.title} className="preview-image" />}</section></div>;
 }
 
-function ConfirmDialog({ title, detail, onCancel, onConfirm }: { title: string; detail: string; onCancel: () => void; onConfirm: () => void }) {
-  return <div className="dialog-backdrop" role="presentation"><section className="dialog-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title"><span className="confirm-mark"><ShieldCheck size={22} /></span><h3 id="confirm-title">{title}</h3><p>{detail}</p><div className="form-actions"><Button variant="destructive" onClick={onConfirm}>Confirm</Button><Button variant="outline" onClick={onCancel}>Cancel</Button></div></section></div>;
+function ConfirmDialog({ title, detail, onCancel, onConfirm, busy = false }: { title: string; detail: string; onCancel: () => void; onConfirm: () => void; busy?: boolean }) {
+  return <div className="dialog-backdrop" role="presentation"><section className="dialog-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title"><span className="confirm-mark"><ShieldCheck size={22} /></span><h3 id="confirm-title">{title}</h3><p>{detail}</p><div className="form-actions"><Button variant="destructive" disabled={busy} onClick={onConfirm}>{busy ? "Deleting…" : "Confirm"}</Button><Button variant="outline" disabled={busy} onClick={onCancel}>Cancel</Button></div></section></div>;
 }
