@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { canCompareReports, getShareStatus, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry } from "@/lib/medivault";
+import { limitReportAiText, REPORT_AI_MAX_OUTPUT_TOKENS, REPORT_AI_MAX_QUESTION_CHARS, REPORT_AI_MAX_TEXT_CHARS } from "@/lib/report-ai.shared";
 
 describe("MediVault report rules", () => {
   it("accepts a valid report at the 10 MB limit and rejects one byte over", () => {
@@ -36,6 +37,13 @@ describe("MediVault report rules", () => {
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "blood" })).toBe(true);
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "b", category_id: "scan" })).toBe(false);
     expect(canCompareReports({ id: "a", category_id: "blood" }, { id: "a", category_id: "blood" })).toBe(false);
+  });
+
+  it("keeps report AI context and answers small to limit token use", () => {
+    expect(REPORT_AI_MAX_TEXT_CHARS).toBe(3200);
+    expect(REPORT_AI_MAX_QUESTION_CHARS).toBe(240);
+    expect(REPORT_AI_MAX_OUTPUT_TOKENS).toBe(120);
+    expect(limitReportAiText("a".repeat(3201))).toHaveLength(3200);
   });
 
   it("keeps patient-owned reports readable while preserving clinician and admin gates", () => {

@@ -9,3 +9,4 @@
 - [ ] Recheck the inaccessible test-file metadata row and verify clinician sharing, QR access, administrator actions, sign-in, and cross-account privacy with role accounts.
 - [ ] Import existing accounts, records, and report files after receiving safe exports.
 - [ ] Confirm the production URL and cut over after data verification.
+- [ ] Add low-token, non-diagnostic report Q&A and a previous-report trend summary using Groq.

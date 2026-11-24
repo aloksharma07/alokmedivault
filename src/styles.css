@@ -690,3 +690,15 @@ a:hover { text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.report-ai-panel { display: grid; gap: .8rem; }
+.report-ai-heading { align-items: flex-start; color: var(--primary); display: flex; gap: .8rem; justify-content: space-between; }
+.report-ai-heading h3 { color: var(--foreground); font-size: 1rem; margin: .2rem 0; }
+.report-ai-heading p { color: var(--muted-foreground); font-size: .76rem; margin: 0; }
+.report-ai-panel .form-field { display: grid; gap: .35rem; }
+.report-ai-answer { background: var(--mv-wash); border-left: 3px solid var(--primary); border-radius: 4px; color: var(--foreground); font-size: .8rem; line-height: 1.6; padding: .75rem .9rem; white-space: pre-line; }
+.report-ai-answer p { margin: .25rem 0 0; }
+.report-ai-error { color: var(--destructive); font-size: .78rem; margin: 0; }
+@media (max-width: 640px) {
+  .report-ai-panel .form-actions, .report-ai-panel .form-actions > button { width: 100%; }
+}

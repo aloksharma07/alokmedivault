@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity, ArrowDownToLine, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown,
   Clock3, Copy, Download, Eye, FileHeart, FilePlus2, FileSearch2, HeartPulse, Hospital,
-  Image, LockKeyhole, MoreHorizontal, Pencil, QrCode, Search, Share2, ShieldCheck,
+  Image, LockKeyhole, MoreHorizontal, Pencil, QrCode, Search, Share2, ShieldCheck, Sparkles,
   Star, Stethoscope, Trash2, Upload, Users, X, Link2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { explainReportText } from "@/lib/report-ai.functions";
+import { limitReportAiText, REPORT_AI_MAX_QUESTION_CHARS } from "@/lib/report-ai.shared";
 import {
   canCompareReports, formatDate, formatDateTime, formatSize, getShareStatus, initials,
   qrPatientQueryOptions, REPORT_MAX_BYTES, validateReportFile, validateShareExpiry,
@@ -354,6 +357,78 @@ function ReportForm({ report: editingReport }: { report?: Report }) {
   </div>;
 }
 
+async function extractReportPdfText(report: Report) {
+  if (report.file_type !== "pdf") throw new Error("Report explanations are available for PDF files only.");
+  const { data: signed, error } = await supabase.storage.from("medical-reports").createSignedUrl(report.storage_path, 300);
+  if (error || !signed) throw new Error("This report PDF could not be opened.");
+  const response = await fetch(signed.signedUrl);
+  if (!response.ok) throw new Error("This report PDF could not be downloaded for reading.");
+
+  const [pdfjs, worker] = await Promise.all([
+    import("pdfjs-dist/legacy/build/pdf.mjs"),
+    import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"),
+  ]);
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) });
+  const document = await loadingTask.promise;
+  try {
+    const pages: string[] = [];
+    for (let pageNumber = 1; pageNumber <= Math.min(document.numPages, 5); pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent();
+      pages.push(content.items.map((item) => ("str" in item ? item.str : "")).join(" "));
+      if (pages.join(" ").length >= REPORT_AI_MAX_QUESTION_CHARS * 14) break;
+    }
+    const text = limitReportAiText(pages.join(" "));
+    if (!text) throw new Error("No selectable text was found. Scanned PDFs and image reports are not supported yet.");
+    return text;
+  } finally {
+    await document.destroy();
+  }
+}
+
+function ReportAiPanel({ report, previousReports }: { report: Report; previousReports: Report[] }) {
+  const askGroq = useServerFn(explainReportText);
+  const [previousId, setPreviousId] = useState(previousReports[0]?.id ?? "");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const previousReport = previousReports.find((item) => item.id === previousId);
+
+  async function submitQuestion() {
+    setBusy(true);
+    setError("");
+    setAnswer("");
+    try {
+      const reportText = await extractReportPdfText(report);
+      const previousReportText = previousReport ? await extractReportPdfText(previousReport) : null;
+      const result = await askGroq({ data: {
+        reportId: report.id,
+        reportText,
+        question: question.trim(),
+        previousReportId: previousReport?.id ?? null,
+        previousReportText,
+      } });
+      setAnswer(result.answer);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not explain this report.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <section className="surface detail-panel report-ai-panel">
+    <div className="report-ai-heading"><div><span className="eyebrow">GROQ REPORT EXPLANATION</span><h3>Ask about this report</h3><p>Brief, non-diagnostic explanations and a comparison with an earlier report.</p></div><Sparkles size={20} /></div>
+    {previousReports.length > 0 && <div className="form-field"><Label htmlFor="report-ai-previous">Compare with earlier report</Label><select id="report-ai-previous" className="field-control" value={previousId} onChange={(event) => setPreviousId(event.target.value)} disabled={busy}><option value="">No comparison</option>{previousReports.map((item) => <option key={item.id} value={item.id}>{item.title} · {formatDate(item.report_date)}</option>)}</select></div>}
+    <div className="form-field"><Label htmlFor="report-ai-question">Your question</Label><Textarea id="report-ai-question" maxLength={REPORT_AI_MAX_QUESTION_CHARS} rows={2} value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about a result or leave blank for a short summary" disabled={busy} /></div>
+    <div className="privacy-callout"><LockKeyhole size={16} /> The selected PDF text and optional earlier PDF text are sent to Groq; they may contain personal details. The answer is not a diagnosis, and scanned PDFs are not readable here.</div>
+    <div className="form-actions"><Button type="button" disabled={busy || report.file_type !== "pdf"} onClick={() => void submitQuestion()}><Sparkles size={16} />{busy ? "Reading report…" : question.trim() ? "Ask about report" : previousReport ? "Compare reports" : "Summarize report"}</Button></div>
+    {error && <p className="report-ai-error" role="alert">{error}</p>}
+    {answer && <div className="report-ai-answer" aria-live="polite"><strong>Report explanation</strong><p>{answer}</p></div>}
+  </section>;
+}
+
 function ReportDetails({ report }: { report: Report }) {
   const data = useWorkspace();
   const queryClient = useQueryClient();
@@ -362,6 +437,9 @@ function ReportDetails({ report }: { report: Report }) {
   const [publicShareOpen, setPublicShareOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const category = data.categories.find((item) => item.id === report.category_id);
+  const previousReports = data.reports
+    .filter((item) => item.id !== report.id && item.category_id === report.category_id && item.report_date < report.report_date && item.file_type === "pdf")
+    .sort((a, b) => b.report_date.localeCompare(a.report_date));
 
   async function openFile(download = false) {
     const { data: signed, error } = await supabase.storage.from("medical-reports").createSignedUrl(report.storage_path, 300, { download });
@@ -393,6 +471,7 @@ function ReportDetails({ report }: { report: Report }) {
     <div className="detail-header"><div className="detail-title-line"><span className="report-category-icon large">{categoryIcon(category?.icon ?? "file")}</span><div><span className="eyebrow">{category?.name ?? "MEDICAL REPORT"}</span><h2>{report.title}</h2><p>{formatDate(report.report_date)} <span className="dot-separator">·</span> Added {formatDate(report.uploaded_at)}</p></div></div><div className="detail-actions"><Button variant={report.is_important ? "secondary" : "outline"} size="icon" title="Toggle important" aria-label="Toggle important" onClick={() => void toggleStar()}><Star size={17} fill={report.is_important ? "currentColor" : "none"} /></Button><Button variant="outline" size="icon" title="Edit details" aria-label="Edit details" asChild><Link to="/reports/$reportId/edit" params={{ reportId: report.id }}><Pencil size={16} /></Link></Button><Button variant="outline" size="icon" title="Delete report" aria-label="Delete report" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /></Button></div></div>
     <div className="detail-grid"><section className="surface detail-panel"><span className="eyebrow">REPORT INFORMATION</span><dl className="detail-list"><div><dt>Hospital</dt><dd>{report.hospital_name || "—"}</dd></div><div><dt>Laboratory</dt><dd>{report.laboratory_name || "—"}</dd></div><div><dt>Doctor</dt><dd>{report.doctor_name || "—"}</dd></div><div><dt>Department</dt><dd>{report.department || "—"}</dd></div><div><dt>File</dt><dd>{report.file_name} <span className="muted-inline">· {formatSize(report.file_size)}</span></dd></div><div className="full"><dt>Notes</dt><dd className="pre-line">{report.notes || "No notes added."}</dd></div></dl></section>
       <section className="surface file-panel"><span className="file-panel-icon">{report.file_type === "pdf" ? <FileHeart size={25} /> : <Image size={25} />}</span><span className="eyebrow">PRIVATE FILE</span><h3>{report.file_name}</h3><p>{report.file_type.toUpperCase()} · {formatSize(report.file_size)}</p><Button className="full-button" onClick={() => void openFile()}><Eye size={16} /> Preview file</Button><Button className="full-button" variant="outline" onClick={() => void openFile(true)}><ArrowDownToLine size={16} /> Download</Button><Button className="full-button" variant="secondary" onClick={() => setShareOpen(true)}><Share2 size={16} /> Share with a doctor</Button><Button className="full-button" variant="outline" onClick={() => setPublicShareOpen(true)}><Link2 size={16} /> Create public link</Button></section></div>
+    <ReportAiPanel report={report} previousReports={previousReports} />
     <section className="surface detail-panel share-history"><div className="panel-heading"><div><span className="eyebrow">ACCESS HISTORY</span><h3>Report shares</h3></div><Button size="sm" variant="outline" onClick={() => setShareOpen(true)}><Share2 size={15} /> Share report</Button></div>{data.shares.filter((share) => "report_id" in share && share.report_id === report.id).length ? data.shares.filter((share) => "report_id" in share && share.report_id === report.id).map((share) => <ShareRow key={share.share_id} share={share as PatientShare} />) : <p className="quiet-note">This report has not been shared.</p>}</section>
     {shareOpen && <ShareDialog report={report} onClose={() => setShareOpen(false)} />}
     {publicShareOpen && <PublicShareDialog report={report} onClose={() => setPublicShareOpen(false)} />}

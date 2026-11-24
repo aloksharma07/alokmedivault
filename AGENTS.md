@@ -33,3 +33,4 @@ use the editor.
 - Keep account data, protected medical-report workflows, and private report files in TanStack Start and Lovable Cloud; this preserves managed sign-in and server-enforced privacy.
 - Use outlet-only parent routes with leaf index pages for nested workflows; this lets list, detail, and edit screens render independently with their own metadata.
 - Serve public report links through unguessable, revocable, expiring tokens scoped to one report; validate the token before issuing a short-lived URL to the private file.
+- Route Groq report explanations through the linked Lovable connector gateway from authenticated server functions; keep provider credentials and report text out of browser-facing logs.
