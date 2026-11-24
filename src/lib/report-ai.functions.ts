@@ -62,14 +62,9 @@ export const explainReportText = createServerFn({ method: "POST" })
       previousDate = previous.report_date;
     }
 
-    const lovableApiKey = process.env["LOVABLE_API_KEY"];
-    const connectorApiKey = process.env["UDC_GROQ_AI_FOR_MEDIVAULT_API_KEY"];
-    if (!lovableApiKey || !connectorApiKey) {
-      const missing = [
-        ...(!lovableApiKey ? ["LOVABLE_API_KEY"] : []),
-        ...(!connectorApiKey ? ["UDC_GROQ_AI_FOR_MEDIVAULT_API_KEY"] : []),
-      ];
-      throw new Error(`The Groq connection is not configured locally. Add ${missing.join(" and ")} to the server environment, then restart npm run dev.`);
+    const groqApiKey = process.env["GROQ_API_KEY"];
+    if (!groqApiKey) {
+      throw new Error("Groq is not configured. Add GROQ_API_KEY to the server environment, then restart npm run dev.");
     }
 
     const reportContext = [
@@ -77,16 +72,15 @@ export const explainReportText = createServerFn({ method: "POST" })
       data.previousReportText && previousDate ? `Earlier report (${previousDate}):\n${data.previousReportText}` : "",
     ].filter(Boolean).join("\n\n");
 
-    const response = await fetch("https://connector-gateway.lovable.dev/udc_groq_ai_for_medivault/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
-        "X-Connection-Api-Key": connectorApiKey,
+        Authorization: `Bearer ${groqApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-20b",
-        max_tokens: REPORT_AI_MAX_OUTPUT_TOKENS,
+        max_completion_tokens: REPORT_AI_MAX_OUTPUT_TOKENS,
         temperature: 0.2,
         messages: [
           {

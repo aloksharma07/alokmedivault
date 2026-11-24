@@ -27,8 +27,8 @@ npm run dev
 
 ## Report AI
 
-Report summaries and follow-up questions are available on a patient's PDF report detail page. The selected report text is sent from the browser to the authenticated server function and forwarded through the Lovable Groq connector; provider credentials are server-side only. Scanned PDFs and image reports are not supported.
+Report summaries and follow-up questions are available on a patient's PDF report detail page. The selected report text is sent from the browser to an authenticated server function and forwarded directly to Groq; the Groq API key is server-side only. Scanned PDFs and image reports are not supported.
 
-To enable AI, configure the Lovable Groq connector and its server-side secrets (`LOVABLE_API_KEY` and `UDC_GROQ_AI_FOR_MEDIVAULT_API_KEY`) in Lovable Cloud. Do not add these secrets to browser variables (`VITE_*`) or commit them. If a Groq key has been exposed in chat or another public place, revoke it and create a replacement before configuring the connector.
+To enable AI, set the server-side `GROQ_API_KEY` secret in your deployment environment. Do not add it to browser variables (`VITE_*`) or commit it. If a Groq key has been exposed in chat or another public place, revoke it and create a replacement.
 
-For local development, copy `.env.example` to `.env`, add the Supabase and Lovable Groq server secrets there, and restart `npm run dev`. Never commit `.env` or place Lovable API secrets in `VITE_*` variables.
+For local development, copy `.env.example` to `.env`, add your Supabase configuration and `GROQ_API_KEY`, and restart `npm run dev`. Never commit `.env` or place the Groq key in a `VITE_*` variable.

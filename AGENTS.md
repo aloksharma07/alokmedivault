@@ -19,13 +19,8 @@ use the editor.
   Ask Lovable to change the schema.
 - **Generated files.** Do not edit a file whose header says it is automatically
   generated.
-- **AI gateway.** Keep model calls on Lovable's gateway, and keep
-  `LOVABLE_API_KEY` out of browser code.
-- **Connectors.** Lovable provides native connectors. `list_connectors` shows
-  which are enabled; `add_connector` only returns the dashboard link. When a
-  connector is enabled, calls go through the connector gateway and need
-  `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
-  own key and store it in Secrets.
+- **AI credentials.** Keep Groq model calls in authenticated server functions,
+  use the server-side `GROQ_API_KEY`, and never expose provider keys to browser code.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 
@@ -33,4 +28,4 @@ use the editor.
 - Keep account data, protected medical-report workflows, and private report files in TanStack Start and Lovable Cloud; this preserves managed sign-in and server-enforced privacy.
 - Use outlet-only parent routes with leaf index pages for nested workflows; this lets list, detail, and edit screens render independently with their own metadata.
 - Serve public report links through unguessable, revocable, expiring tokens scoped to one report; validate the token before issuing a short-lived URL to the private file.
-- Route Groq report explanations through the linked Lovable connector gateway from authenticated server functions; keep provider credentials and report text out of browser-facing logs.
+- Route Groq report explanations directly to Groq from authenticated server functions; keep provider credentials and report text out of browser-facing logs.
